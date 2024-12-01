@@ -1,4 +1,4 @@
-package com.example.demo.api;
+package com.example.api;
 
 public interface ApiConstants {
 
