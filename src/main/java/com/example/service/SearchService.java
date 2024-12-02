@@ -96,7 +96,7 @@ public class SearchService {
 
         return officers.stream()
             .filter(officer -> officer.resignedOn() == null)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static List<TruProxyCompany> filterCompanies(boolean isActive, ResponseEntity<TruProxyCompanyResponse> companyResponse) {
@@ -108,7 +108,7 @@ public class SearchService {
 
         return companies.stream()
             .filter(company -> isActive == ACTIVE_STATUS.equalsIgnoreCase(company.companyStatus()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
 }
