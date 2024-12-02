@@ -10,7 +10,7 @@ import java.util.List;
 public class TestConstants {
 
     //Test Constants
-    public static final String SOME_A_PI_KEY = "someAPiKey";
+    public static final String SOME_API_KEY = "someAPiKey";
     public static final String COMPANY_NUMBER = "888";
     public static final String BBC_COMPANY_NAME = "BBC LIMITED";
 

@@ -4,10 +4,11 @@ import static com.example.api.ApiConstants.X_API_KEY;
 import static com.example.constants.TestConstants.API_COMPANIES_ENDPOINT;
 import static com.example.constants.TestConstants.BBC_COMPANY_NAME;
 import static com.example.constants.TestConstants.COMPANY_NUMBER;
-import static com.example.constants.TestConstants.SOME_A_PI_KEY;
+import static com.example.constants.TestConstants.SOME_API_KEY;
 import static com.example.constants.TestConstants.TEST_COMPANY_RESPONSE;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.apache.hc.core5.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.hc.core5.http.HttpStatus.SC_OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -42,14 +43,14 @@ class SearchApiControllerTest {
     void findCompanyPostSuccess() {
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
 
-        when(mockSearchService.findCompanyAndOfficer(SOME_A_PI_KEY, true, searchRequestBody))
+        when(mockSearchService.findCompanyAndOfficer(SOME_API_KEY, true, searchRequestBody))
             .thenReturn(TEST_COMPANY_RESPONSE);
 
         String requestBody = "{\"companyName\": \"" + BBC_COMPANY_NAME + "\",\"companyNumber\": \"" + COMPANY_NUMBER + "\"}";
 
         ExtractableResponse<Response> response = given()
             .contentType(JSON)
-            .header(new Header(X_API_KEY, SOME_A_PI_KEY))
+            .header(new Header(X_API_KEY, SOME_API_KEY))
             .queryParam("active", true)
             .body(requestBody)
             .when()
@@ -69,6 +70,27 @@ class SearchApiControllerTest {
             "\"address_line_1\":\"2 Quay West Court\",\"country\":\"UK\"}}]}]}";
 
         assertEquals(expectedResponse, response.body().asString());
+    }
+
+    @Test
+    void findCompanyPostReturnsBadRequestWhenApiHeaderMissing() {
+        SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
+
+        when(mockSearchService.findCompanyAndOfficer(SOME_API_KEY, true, searchRequestBody))
+            .thenReturn(TEST_COMPANY_RESPONSE);
+
+        String requestBody = "{\"companyName\": \"" + BBC_COMPANY_NAME + "\",\"companyNumber\": \"" + COMPANY_NUMBER + "\"}";
+
+        ExtractableResponse<Response> response = given()
+            .contentType(JSON)
+            .header(new Header("X-random-header", "random-value"))
+            .queryParam("active", true)
+            .body(requestBody)
+            .when()
+            .post(API_COMPANIES_ENDPOINT)
+            .then()
+            .statusCode(SC_BAD_REQUEST)
+            .extract();
     }
 
 }
