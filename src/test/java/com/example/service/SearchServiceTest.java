@@ -30,26 +30,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 @ExtendWith(MockitoExtension.class)
 class SearchServiceTest {
 
     @Mock
-    TruProxyRestfulClient mockTruProxyRestfulClient;
+    private TruProxyRestfulClient mockTruProxyRestfulClient;
 
     @InjectMocks
-    SearchService searchService;
+    private SearchService searchService;
 
     @Test
     void findCompanyAndOfficerReturnsSuccess() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + COMPANY_NUMBER, TruProxyCompanyResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyCompanyResponse(1, TEST_TRUPROXY_ACTIVE_COMPANY_RESPONSE_LIST), HttpStatus.OK));
+            .thenReturn(new TruProxyCompanyResponse(1, TEST_TRUPROXY_ACTIVE_COMPANY_RESPONSE_LIST));
 
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Officers?CompanyNumber=" + COMPANY_NUMBER, TruProxyOfficerResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyOfficerResponse(List.of(TEST_OFFICER_NOT_RESIGNED)), HttpStatus.OK));
+            .thenReturn(new TruProxyOfficerResponse(List.of(TEST_OFFICER_NOT_RESIGNED)));
 
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
 
@@ -82,10 +79,10 @@ class SearchServiceTest {
     @Test
     void whenNoCompanyNumberProvidedSearchByCompanyName() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + BBC_COMPANY_NAME, TruProxyCompanyResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyCompanyResponse(1, TEST_TRUPROXY_BBC_COMPANY_RESPONSE), HttpStatus.OK));
+            .thenReturn(new TruProxyCompanyResponse(1, TEST_TRUPROXY_BBC_COMPANY_RESPONSE));
 
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Officers?CompanyNumber=" + BBC_COMPANY_NAME, TruProxyOfficerResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyOfficerResponse(Collections.emptyList()), HttpStatus.OK));
+            .thenReturn(new TruProxyOfficerResponse(Collections.emptyList()));
 
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, null);
 
@@ -98,10 +95,10 @@ class SearchServiceTest {
     @Test
     void whenTruProxyCompanyResponseIsEmptyReturnEmptyResponse() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + COMPANY_NUMBER, TruProxyCompanyResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyCompanyResponse(0, List.of()), HttpStatus.OK));
+            .thenReturn(new TruProxyCompanyResponse(0, List.of()));
 
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Officers?CompanyNumber=" + COMPANY_NUMBER, TruProxyOfficerResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyOfficerResponse(List.of(TEST_OFFICER_NOT_RESIGNED)), HttpStatus.OK));
+            .thenReturn(new TruProxyOfficerResponse(List.of(TEST_OFFICER_NOT_RESIGNED)));
 
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
 
@@ -114,10 +111,10 @@ class SearchServiceTest {
     @Test
     void whenOfficerResponseIsEmptyThenReturnCompanyResponseWithEmptyOfficerList() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + COMPANY_NUMBER, TruProxyCompanyResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyCompanyResponse(1, TEST_TRUPROXY_ACTIVE_COMPANY_RESPONSE_LIST), HttpStatus.OK));
+            .thenReturn(new TruProxyCompanyResponse(1, TEST_TRUPROXY_ACTIVE_COMPANY_RESPONSE_LIST));
 
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Officers?CompanyNumber=" + COMPANY_NUMBER, TruProxyOfficerResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyOfficerResponse(Collections.emptyList()), HttpStatus.OK));
+            .thenReturn(new TruProxyOfficerResponse(Collections.emptyList()));
 
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
 
@@ -140,10 +137,10 @@ class SearchServiceTest {
     @Test
     void whenTruProxyOfficerResponseContainsResignedOfficersDoNotIncludeThemInCompanyResponse() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + COMPANY_NUMBER, TruProxyCompanyResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyCompanyResponse(1, TEST_TRUPROXY_ACTIVE_COMPANY_RESPONSE_LIST), HttpStatus.OK));
+            .thenReturn(new TruProxyCompanyResponse(1, TEST_TRUPROXY_ACTIVE_COMPANY_RESPONSE_LIST));
 
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Officers?CompanyNumber=" + COMPANY_NUMBER, TruProxyOfficerResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyOfficerResponse(List.of(TEST_OFFICER_RESIGNED)), HttpStatus.OK));
+            .thenReturn(new TruProxyOfficerResponse(List.of(TEST_OFFICER_RESIGNED)));
 
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
 
@@ -166,10 +163,10 @@ class SearchServiceTest {
     @Test
     void returnNonActiveCompaniesWhenIsActiveFlagIsFalse() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + COMPANY_NUMBER, TruProxyCompanyResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyCompanyResponse(3, TEST_TRUPROXY_MIXED_COMPANY_RESPONSE), HttpStatus.OK));
+            .thenReturn(new TruProxyCompanyResponse(3, TEST_TRUPROXY_MIXED_COMPANY_RESPONSE));
 
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Officers?CompanyNumber=" + COMPANY_NUMBER, TruProxyOfficerResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyOfficerResponse(Collections.emptyList()), HttpStatus.OK));
+            .thenReturn(new TruProxyOfficerResponse(Collections.emptyList()));
 
         CompanyResponse response = searchService.findCompanyAndOfficer(SOME_API_KEY, false, new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER));
 
@@ -209,7 +206,7 @@ class SearchServiceTest {
     @Test
     void whenTruProxyRestfulClientThrowsCustomClientExceptionReturnEmptyResponse() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + COMPANY_NUMBER, TruProxyCompanyResponse.class))
-            .thenThrow(new CustomClientException("Client Forbidden", new HttpClientErrorException(HttpStatus.FORBIDDEN)));
+            .thenThrow(new CustomClientException(HttpStatus.FORBIDDEN.value()));
 
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
 
@@ -222,7 +219,7 @@ class SearchServiceTest {
     @Test
     void whenTruProxyRestfulClientThrowsCustomServerExceptionReturnEmptyResponse() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + COMPANY_NUMBER, TruProxyCompanyResponse.class))
-            .thenThrow(new CustomServerException("Server error", new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR)));
+            .thenThrow(new CustomServerException(HttpStatus.INTERNAL_SERVER_ERROR.value()));
 
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
 
@@ -248,7 +245,7 @@ class SearchServiceTest {
     @Test
     void whenTruProxyRestfulClientResponseIsEmptyReturnEmptyResponse() {
         when(mockTruProxyRestfulClient.genericExchange(SOME_API_KEY, "/Search?Query=" + COMPANY_NUMBER, TruProxyCompanyResponse.class))
-            .thenReturn(new ResponseEntity<>(new TruProxyCompanyResponse(0, Collections.emptyList()), HttpStatus.OK));
+            .thenReturn(new TruProxyCompanyResponse(0, Collections.emptyList()));
 
         SearchRequestBody searchRequestBody = new SearchRequestBody(BBC_COMPANY_NAME, COMPANY_NUMBER);
 

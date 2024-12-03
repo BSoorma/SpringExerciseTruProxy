@@ -2,7 +2,15 @@ package com.example.exceptions;
 
 public class CustomServerException extends RuntimeException {
 
-    public CustomServerException(String message, Throwable cause) {
-        super(message, cause);
+    private final int httpStatus;
+
+    public CustomServerException(int httpStatus) {
+        super("5xx server error calling downstream");
+        this.httpStatus = httpStatus;
     }
+
+    public int getHttpStatus() {
+        return httpStatus;
+    }
+
 }

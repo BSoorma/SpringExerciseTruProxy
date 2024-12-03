@@ -13,11 +13,9 @@ import com.example.rest.TruProxyRestfulClient;
 import io.micrometer.common.util.StringUtils;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -50,22 +48,22 @@ public class SearchService {
         }
 
         try {
-            ResponseEntity<TruProxyCompanyResponse> companyResponse =
+            TruProxyCompanyResponse companyResponse =
                 truProxyRestfulClient.genericExchange(apiKey, getEndpoint(COMPANY_SEARCH_QUERY, searchTerm), TruProxyCompanyResponse.class);
 
             List<TruProxyCompany> companies = filterCompanies(isActive, companyResponse);
 
-            ResponseEntity<TruProxyOfficerResponse> officerResponse =
+            TruProxyOfficerResponse officerResponse =
                 truProxyRestfulClient.genericExchange(apiKey, getEndpoint(OFFICERS_COMPANY_NUMBER_SEARCH_QUERY, searchTerm), TruProxyOfficerResponse.class);
 
             List<Officer> officerResponseBodies = filterOutResignedOfficers(officerResponse);
 
             return new CompanyResponse(companies.size(), createCompanyAndOfficerResponse(companies, officerResponseBodies));
         } catch (CustomClientException e) {
-            log.error("Client error occurred: {}", e.getMessage());
+            log.error("Client error occurred: {}", e.getMessage() + " " + e.getHttpStatus());
             return new CompanyResponse(0, Collections.emptyList());
         } catch (CustomServerException e) {
-            log.error("Server error occurred: {}", e.getMessage());
+            log.error("Server error occurred: {}", e.getMessage() + " " + e.getHttpStatus());
             return new CompanyResponse(0, Collections.emptyList());
         } catch (Exception e) {
             log.error("Unexpected error occurred: {}", e.getMessage());
@@ -87,8 +85,8 @@ public class SearchService {
             .collect(Collectors.toList());
     }
 
-    private List<Officer> filterOutResignedOfficers(ResponseEntity<TruProxyOfficerResponse> officerResponse) {
-        List<Officer> officers = Objects.requireNonNull(officerResponse.getBody()).items();
+    private List<Officer> filterOutResignedOfficers(TruProxyOfficerResponse officerResponse) {
+        List<Officer> officers = officerResponse.items();
 
         if (officers == null || officers.isEmpty()) {
             return Collections.emptyList();
@@ -99,8 +97,8 @@ public class SearchService {
             .toList();
     }
 
-    private static List<TruProxyCompany> filterCompanies(boolean isActive, ResponseEntity<TruProxyCompanyResponse> companyResponse) {
-        List<TruProxyCompany> companies = Objects.requireNonNull(companyResponse.getBody()).items();
+    private static List<TruProxyCompany> filterCompanies(boolean isActive, TruProxyCompanyResponse companyResponse) {
+        List<TruProxyCompany> companies = companyResponse.items();
 
         if (companies == null || companies.isEmpty()) {
             return Collections.emptyList();
